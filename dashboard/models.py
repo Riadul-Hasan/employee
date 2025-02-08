@@ -32,12 +32,26 @@ class Attendance(models.Model):
     def __str__(self):
         return f"{self.employee.user.username} - {self.date} {self.time} / {self.quit_time if self.quit_time else 'Not Quit Yet'}"
 
+
 class AttendanceTimeSettings(models.Model):
     start_time = models.TimeField()  # Allowed check-in time
-    end_time = models.TimeField()    # Allowed check-out time
+    end_time = models.TimeField()  # Allowed check-out time
+
+    def formatted_start_time(self):
+        return self.start_time.strftime("%I:%M %p")  # 12-hour format with AM/PM
+
+    def formatted_end_time(self):
+        return self.end_time.strftime("%I:%M %p")
+
+    def save(self, *args, **kwargs):
+        # Convert times to ensure they are saved correctly
+        self.start_time = datetime.strptime(self.start_time.strftime("%I:%M %p"), "%I:%M %p").time()
+        self.end_time = datetime.strptime(self.end_time.strftime("%I:%M %p"), "%I:%M %p").time()
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Attendance Time: {self.start_time} - {self.end_time}"
+        return f"Start: {self.formatted_start_time()} | End: {self.formatted_end_time()}"
+
     
     
 class AllowedEmail(models.Model):
