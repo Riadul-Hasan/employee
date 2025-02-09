@@ -10,6 +10,7 @@ from django.utils.timezone import localdate
 from calendar import monthrange
 from django.utils.dateparse import parse_date
 import calendar
+import openpyxl
 from datetime import datetime, date
 import pandas as pd
 from django.utils.timezone import now, localtime
@@ -336,7 +337,7 @@ def mark_attendance(request):
     
     settings = AttendanceTimeSettings.objects.first()
     if settings and not (settings.start_time <= current_time <= settings.end_time):
-        messages.error(request, "You can only mark attendance during the allowed time.")
+        messages.error(request, f"You can only mark attendance from {settings.formatted_start_time()} to {settings.formatted_end_time()}.")
         return redirect("dashboard")
     
     # Check if today is a default holiday
